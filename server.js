@@ -3,10 +3,12 @@ import cors from 'cors';
 import puppeteer from 'puppeteer';
 import { dotenv } from 'dotenv';
 import { OpenAI } from 'openai';
-
+app.use(cors({
+  origin: '*', // or set to your Wix domain for production
+}));
 dotenv.config();
 const app = express();
-app.use(cors());
+
 app.use(express.json());
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
