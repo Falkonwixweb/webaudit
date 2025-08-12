@@ -12,8 +12,8 @@
     "node": ">=18"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "puppeteer": "^24.10.2",
+    "express": "^5.1.0",
+    "puppeteer": "^24.16.1",
     "openai": "^4.30.1",
     "dotenv": "^16.3.1",
       "cors": "^2.8.5"
