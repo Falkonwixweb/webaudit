@@ -1,30 +1,32 @@
 import express from 'express';
 import cors from 'cors';
 import puppeteer from 'puppeteer';
-import { dotenv } from 'dotenv';
+import dotenv from 'dotenv';
 import { OpenAI } from 'openai';
-app.use(cors({
-  origin: '*', // or set to your Wix domain for production
-}));
-dotenv.config();
-const app = express();
 
+dotenv.config();
+
+const app = express();
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function scrapeWebsite(url) {
-  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath()
+  });
+
   const page = await browser.newPage();
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-  const content = await page.evaluate(() => {
-    return {
-      title: document.title,
-      headings: Array.from(document.querySelectorAll('h1, h2')).map(h => h.innerText),
-      text: document.body.innerText.slice(0, 3000)
-    };
-  });
+  const content = await page.evaluate(() => ({
+    title: document.title,
+    headings: Array.from(document.querySelectorAll('h1, h2')).map(h => h.innerText),
+    text: document.body.innerText.slice(0, 3000)
+  }));
 
   await browser.close();
   return content;
@@ -51,7 +53,7 @@ Include:
   const result = await openai.chat.completions.create({
     model: 'gpt-4',
     messages: [{ role: 'user', content: prompt }],
-    max_tokens: 1200,
+    max_tokens: 1200
   });
 
   return result.choices[0].message.content.trim();
